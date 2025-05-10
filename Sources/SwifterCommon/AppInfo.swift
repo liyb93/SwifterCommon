@@ -19,4 +19,8 @@ public struct AppInfo {
     public static let version = Self[.version]
     public static let identifier = Self[.identifier]
     public static let build = Self[.build]
+    
+    public static func associationKey(_ key: String) -> String {
+        identifier + ".AssociationKey." + key
+    }
 }
