@@ -17,4 +17,17 @@ public extension View {
             self
         }
     }
+
+    @ViewBuilder
+    func `if`<IncludeContent: View, ExcludeContent: View>(
+        _ condition: Bool,
+        then includeTransform: (Self) -> IncludeContent,
+        else excludeTransform: (Self) -> ExcludeContent
+    ) -> some View {
+        if condition {
+            includeTransform(self)
+        } else {
+            excludeTransform(self)
+        }
+    }
 }
