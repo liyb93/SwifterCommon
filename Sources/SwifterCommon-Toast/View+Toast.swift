@@ -8,17 +8,44 @@
 import SwiftUI
 import PopupView
 
-struct ToastConfig {
-    var padding: EdgeInsets = EdgeInsets(top: 16, leading: 8, bottom: 16, trailing: 8)
-    var backgroundColor: Color = .black
-    var textColor: Color = .white
-    var font: Font = .system(size: 16)
-    var cornerRadius: CGFloat = 8
+public struct ToastConfig {
+    public var textColor: Color = .white
+    public var font: Font = .system(size: 16)
+    public var backgroundColor: Color = .black
+    public var cornerRadius: CGFloat = 8
+    public var padding: EdgeInsets = EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8)
 
-    var dragToDismiss: Bool = true
-    var dragToDismissDistance: CGFloat?
-    var closeOnTap: Bool = true
-    var closeOnTapOutside: Bool = false
+    public var dragToDismiss: Bool = true
+    public var dragToDismissDistance: CGFloat?
+    public var closeOnTap: Bool = true
+    public var closeOnTapOutside: Bool = false
+
+    public var willDismissCallback: (()->Void)?
+    public var dismissCallback: (()->Void)?
+
+    public init(textColor: Color = .white,
+                font: Font = .system(size: 16),
+                backgroundColor: Color = .black,
+                cornerRadius: CGFloat = 8,
+                padding: EdgeInsets = EdgeInsets(top: 8, leading: 8, bottom: 8, trailing: 8),
+                dragToDismiss: Bool = true,
+                dragToDismissDistance: CGFloat? = nil,
+                closeOnTap: Bool = true,
+                closeOnTapOutside: Bool = false,
+                willDismissCallback: (()->Void)? = nil,
+                dismissCallback: (()->Void)? = nil) {
+        self.textColor = textColor
+        self.font = font
+        self.backgroundColor = backgroundColor
+        self.cornerRadius = cornerRadius
+        self.padding = padding
+        self.dragToDismiss = dragToDismiss
+        self.dragToDismissDistance = dragToDismissDistance
+        self.closeOnTap = closeOnTap
+        self.closeOnTapOutside = closeOnTapOutside
+        self.willDismissCallback = willDismissCallback
+        self.dismissCallback = dismissCallback
+    }
 }
 
 public enum ToastPosition {
@@ -74,7 +101,7 @@ public enum ToastPosition {
 }
 
 extension View {
-    func toast(_ text: Binding<String?>, position: ToastPosition = .top, delay: Double = 1, config: ToastConfig = .init()) -> some View {
+    public func toast(_ text: Binding<String?>, position: ToastPosition = .top, delay: Double = 1, config: ToastConfig = .init()) -> some View {
         popup(item: text) { toast in
             Text(toast)
                 .foregroundStyle(.white)
@@ -85,25 +112,24 @@ extension View {
                 .padding(.bottom, config.padding.bottom)
                 .background(Color.black)
                 .clipShape(.capsule)
-        } customize: {
+        } customize: { result in
+            var paramters = result
+                .type(.floater())
+                .closeOnTap(config.closeOnTap)
+                .dragToDismiss(config.dragToDismiss)
+                .closeOnTapOutside(config.closeOnTapOutside)
+                .position(position.popupPosition())
+                .autohideIn(delay > 0 ? delay : nil)
             if let dragToDismissDistance = config.dragToDismissDistance {
-                $0
-                .type(.floater())
-                .closeOnTap(config.closeOnTap)
-                .dragToDismiss(config.dragToDismiss)
-                .dragToDismissDistance(dragToDismissDistance)
-                .closeOnTapOutside(config.closeOnTapOutside)
-                .position(position.popupPosition())
-                .autohideIn(delay > 0 ? delay : nil)
-            } else {
-                $0
-                .type(.floater())
-                .closeOnTap(config.closeOnTap)
-                .dragToDismiss(config.dragToDismiss)
-                .closeOnTapOutside(config.closeOnTapOutside)
-                .position(position.popupPosition())
-                .autohideIn(delay > 0 ? delay : nil)
+                paramters = paramters.dragToDismissDistance(dragToDismissDistance)
             }
+            if let willDismissCallback = config.willDismissCallback {
+                paramters = paramters.willDismissCallback(willDismissCallback)
+            }
+            if let dismissCallback = config.dismissCallback {
+                paramters = paramters.dismissCallback(dismissCallback)
+            }
+            return paramters
         }
     }
 }
