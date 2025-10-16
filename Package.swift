@@ -11,16 +11,25 @@ let package = Package(
         .watchOS(.v9)
     ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
+        // base
         .library(
             name: "SwifterCommon",
             targets: ["SwifterCommon"]),
+        .library(
+            name: "SwifterCommon-Toast",
+            targets: ["SwifterCommon-Toast"])
+    ],
+    dependencies: [
+        .package(url: "https://github.com/exyte/PopupView", .upToNextMajor(from: "4.1.14"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "SwifterCommon"),
-
+        .target(name: "SwifterCommon-Toast", dependencies: [
+            "SwifterCommon",
+            .product(name: "PopupView", package: "PopupView")
+        ])
     ]
 )
