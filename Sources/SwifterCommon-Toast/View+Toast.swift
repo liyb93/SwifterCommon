@@ -100,8 +100,8 @@ public enum ToastPosition {
     }
 }
 
-extension View {
-    public func toast(_ text: Binding<String?>, position: ToastPosition = .top, delay: Double = 1, config: ToastConfig = .init()) -> some View {
+public extension View {
+    func toast(_ text: Binding<String?>, position: ToastPosition = .top, delay: Double = 1, config: ToastConfig = .init()) -> some View {
         popup(item: text) { toast in
             Text(toast)
                 .foregroundStyle(.white)
